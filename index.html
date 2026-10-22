@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2BAC BIOF | Plateforme de Révision Physique & Chimie</title>
+    <!-- Tailwind CSS with Dark Mode Class Strategy -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & STIX Two Math for Textbook Formulas -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=STIX+Two+Math&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        math: ['STIX Two Math', 'Cambria Math', 'Times New Roman', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        /* ==========================================================================
+           CRYSTAL-CLEAR TEXTBOOK MATHEMATICAL NOTATION (NO WEIRD FONTS OR RAW CODE)
+           ========================================================================== */
+        .math-display {
+            font-family: 'STIX Two Math', 'Cambria Math', 'Georgia', serif;
+            font-size: 1.45rem;
+            line-height: 2.1;
+            letter-spacing: 0.02em;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            padding: 1.15rem 1.25rem;
+            border-radius: 1rem;
+            background-color: #f8fafc;
+            border: 2px solid #cbd5e1;
+            color: #0f172a;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.03);
+        }
+
+        .dark .math-display {
+            background-color: #090d16;
+            border-color: #334155;
+            color: #f8fafc;
+            box-shadow: inset 0 2px 6px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        /* Real Vertical Stacked Fractions */
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 0.25rem;
+            text-align: center;
+        }
+        .frac > .num {
+            padding: 0 0.4rem 0.15rem 0.4rem;
+            border-bottom: 2.2px solid currentColor;
+            line-height: 1.25;
+            font-weight: 600;
+        }
+        .frac > .den {
+            padding: 0.15rem 0.4rem 0 0.4rem;
+            line-height: 1.25;
+            font-weight: 600;
+        }
+
+        /* Square Root Styling */
+        .sqrt-wrap {
+            display: inline-flex;
+            align-items: stretch;
+            vertical-align: middle;
+        }
+        .sqrt-sym {
+            font-size: 1.4em;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            padding-right: 1px;
+        }
+        .sqrt-body {
+            border-top: 2.2px solid currentColor;
+            padding: 0.1rem 0.3rem 0 0.2rem;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* Math Separator Pill inside multi-formula box */
+        .math-sep {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 0.15rem 0.6rem;
+            border-radius: 999px;
+            background: #e2e8f0;
+            color: #475569;
+            margin: 0 0.5rem;
+        }
+        .dark .math-sep {
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #64748b;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-indigo-600 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-indigo-400">
+        <i class="fa-solid fa-circle-check text-white text-lg"></i>
+        <span id="toast-msg" class="text-sm font-bold">Modification enregistrée !</span>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TOP HEADER NAVIGATION WITH DARK MODE TOGGLE & GEMINI AI DRAWER      -->
+    <!-- =================================================================== -->
+    <header class="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b-2 border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3">
+            
+            <!-- Brand -->
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-atom text-2xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Physique & Chimie</h1>
+                        <span class="bg-indigo-600 text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">2BAC BIOF</span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block font-medium">Mes Cours • Relations par Unité • Conversions SI • Prof. IA Gemini</p>
+                </div>
+            </div>
+
+            <!-- 4 Clear Main Sections Navigation (Desktop) -->
+            <nav class="hidden xl:flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <button onclick="switchMainView('physique')" id="nav-physique" class="px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-bolt"></i> PARTIE PHYSIQUE
+                </button>
+                <button onclick="switchMainView('chimie')" id="nav-chimie" class="px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-flask"></i> PARTIE CHIMIE
+                </button>
+                <button onclick="switchMainView('relations')" id="nav-relations" class="px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-square-root-variable"></i> LES RELATIONS (Par Unité)
+                </button>
+                <button onclick="switchMainView('conversions')" id="nav-conversions" class="px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-scale-balanced"></i> CONVERSIONS & TABLEAUX
+                </button>
+            </nav>
+
+            <!-- Right Actions: Dark Mode Toggle, AI Tutor & Backup -->
+            <div class="flex items-center gap-2">
+                <!-- Reassuring Auto-Save Status Indicator -->
+                <div id="autosave-status-pill" onclick="openBackupModal()" class="cursor-pointer px-3 py-2 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[11px] font-extrabold flex items-center gap-2 transition hover:bg-emerald-500/20" title="Tout est sauvegardé automatiquement (Appareil + Cloud)">
+                    <span id="autosave-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span id="autosave-text" class="hidden md:inline">Sauvegarde Auto Active</span>
+                </div>
+
+                <!-- Dark Mode / Light Mode Button -->
+                <button onclick="toggleTheme()" id="theme-toggle-btn" class="px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-amber-400 border border-slate-300 dark:border-slate-700 text-xs font-extrabold flex items-center gap-2 transition" title="Changer Mode Nuit / Mode Jour">
+                    <i id="theme-icon" class="fa-solid fa-sun text-sm"></i>
+                    <span id="theme-text" class="hidden sm:inline">Mode Jour</span>
+                </button>
+
+                <!-- AI Professor Drawer Button -->
+                <button onclick="toggleAIDrawer()" class="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-extrabold shadow-md flex items-center gap-2 transition">
+                    <i class="fa-solid fa-robot text-sm"></i>
+                    <span>Prof. IA</span>
+                </button>
+
+                <!-- Backup Data Button -->
+                <button onclick="openBackupModal()" title="Sauvegarder ou Importer mes cours" class="px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs font-extrabold flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-floppy-disk text-indigo-500"></i>
+                    <span class="hidden lg:inline">Sauvegarde</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile / Tablet Navigation Bar -->
+        <div class="xl:hidden flex overflow-x-auto gap-2 px-4 py-2.5 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800">
+            <button onclick="switchMainView('physique')" id="mob-nav-physique" class="shrink-0 px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5">
+                <i class="fa-solid fa-bolt"></i> Partie Physique
+            </button>
+            <button onclick="switchMainView('chimie')" id="mob-nav-chimie" class="shrink-0 px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5">
+                <i class="fa-solid fa-flask"></i> Partie Chimie
+            </button>
+            <button onclick="switchMainView('relations')" id="mob-nav-relations" class="shrink-0 px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5">
+                <i class="fa-solid fa-square-root-variable"></i> Les Relations (Par Unité)
+            </button>
+            <button onclick="switchMainView('conversions')" id="mob-nav-conversions" class="shrink-0 px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5">
+                <i class="fa-solid fa-scale-balanced"></i> Tableaux Conversions
+            </button>
+        </div>
+    </header>
+
+
+    <!-- =================================================================== -->
+    <!-- MAIN CONTENT CONTAINER                                              -->
+    <!-- =================================================================== -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- =============================================================== -->
+        <!-- SECTION 1 & 2 : PARTIE PHYSIQUE & PARTIE CHIMIE (COURS & SÉRIES)-->
+        <!-- =============================================================== -->
+        <div id="view-courses" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Column: Units & Lesson Titles + Add New Lesson Button -->
+            <aside class="lg:col-span-4 space-y-4">
+                <!-- Subject Header Banner -->
+                <div id="subject-banner" class="p-5 rounded-3xl text-white shadow-lg bg-gradient-to-br from-indigo-600 to-indigo-900 border border-indigo-400/30">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span id="subject-badge" class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/20">PARTIE I</span>
+                        <button onclick="openNewLessonModal()" class="text-xs font-extrabold bg-white text-slate-900 hover:bg-indigo-50 px-3 py-1 rounded-xl shadow-xs flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-plus text-indigo-600"></i> Nouveau Cours
+                        </button>
+                    </div>
+                    <h2 id="subject-title" class="text-2xl font-black tracking-tight">PARTIE PHYSIQUE</h2>
+                    <p id="subject-subtitle" class="text-xs text-indigo-100 mt-1 font-medium">Clique sur un titre pour ouvrir ou écrire ton cours</p>
+                </div>
+
+                <!-- Search Filter -->
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+                    <input type="text" id="lesson-search-input" oninput="renderSidebarLessons()" placeholder="Chercher un titre de cours..." class="w-full pl-9 pr-4 py-3 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <!-- Units & Lessons List -->
+                <div id="sidebar-modules-container" class="space-y-4 max-h-[72vh] overflow-y-auto pr-1">
+                    <!-- Populated by JS -->
+                </div>
+            </aside>
+
+            <!-- Right Column: Selected Lesson Content (Course Editor at the VERY TOP!) -->
+            <section class="lg:col-span-8 space-y-6" id="lesson-workspace">
+                <!-- Populated dynamically by JS -->
+            </section>
+
+        </div>
+
+
+        <!-- =============================================================== -->
+        <!-- SECTION 3 : LES RELATIONS (GROUPED CLEANLY BY UNITÉ!)           -->
+        <!-- =============================================================== -->
+        <div id="view-relations" class="hidden space-y-6">
+            
+            <!-- Header Banner -->
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="bg-amber-500 text-slate-950 text-xs font-black px-3 py-0.5 rounded-full uppercase">Cadre Référentiel 2BAC BIOF</span>
+                        <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Écriture Mathématique Claire</span>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Toutes les Relations par Unité (Physique & Chimie)</h2>
+                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">Choisis une unité ci-dessous pour afficher toutes ses formules officielles, les unités SI et les explications.</p>
+                </div>
+
+                <!-- Search Formula Input -->
+                <div class="relative w-full lg:w-80 shrink-0">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+                    <input type="text" id="unit-formula-search" oninput="renderUnitRelations()" placeholder="Rechercher (ex: Soddy, Newton, pH, RC, λ...)" class="w-full pl-9 pr-4 py-3 bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+                </div>
+            </div>
+
+            <!-- Unit Selector Tabs (Filter by Unité) -->
+            <div class="flex flex-wrap gap-2" id="unit-tabs-container">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Formulas Display Container -->
+            <div id="unit-relations-container" class="space-y-8">
+                <!-- Populated by JS with Crystal-Clear HTML Math -->
+            </div>
+
+        </div>
+
+
+        <!-- =============================================================== -->
+        <!-- SECTION 4 : TABLEAUX DE CONVERSIONS, UNITÉS SI & CONSTANTES     -->
+        <!-- =============================================================== -->
+        <div id="view-conversions" class="hidden space-y-8">
+            
+            <!-- Top Banner -->
+            <div class="bg-gradient-to-r from-indigo-900 via-slate-900 to-emerald-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-indigo-500/30">
+                <span class="bg-amber-400 text-slate-950 text-xs font-black px-3 py-1 rounded-full uppercase">Zéro Faute aux Calculs du National</span>
+                <h2 class="text-2xl sm:text-3xl font-black mt-3">Tableaux de Conversions & Unités du Système International (SI)</h2>
+                <p class="text-slate-200 text-xs sm:text-sm mt-1">Toutes les conversions indispensables en Physique et Chimie 2BAC (Volumes m³ ↔ L, Conductimétrie, Énergie MeV ↔ J, Pression, Préfixes).</p>
+            </div>
+
+            <!-- Interactive Smart Unit Converter -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border-2 border-slate-200 dark:border-slate-800">
+                <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-calculator text-indigo-500"></i> Convertisseur Automatique Spécial 2BAC
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 dark:text-slate-300 mb-1.5">Grandeur à convertir</label>
+                        <select id="conv-category" onchange="setupConverterUnits()" class="w-full px-3.5 py-3 bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-xs font-extrabold text-slate-900 dark:text-white">
+                            <option value="volume">Volume (m³, dm³, L, cm³, mL)</option>
+                            <option value="concentration">Concentration (mol/L ↔ mol/m³)</option>
+                            <option value="conductivite">Conductivité σ (S/m ↔ mS/cm)</option>
+                            <option value="energie">Énergie Nucléaire (J, eV, MeV)</option>
+                            <option value="pression">Pression d'un Gaz (Pa, hPa, bar, atm)</option>
+                            <option value="masse">Masse (kg, g, mg, u)</option>
+                            <option value="temps">Temps (s, ms, µs, min, h)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 dark:text-slate-300 mb-1.5">Valeur</label>
+                        <input type="number" id="conv-input-val" value="1" oninput="runConversion()" step="any" class="w-full px-3.5 py-3 bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-sm font-extrabold text-slate-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 dark:text-slate-300 mb-1.5">De l'unité</label>
+                        <select id="conv-from" onchange="runConversion()" class="w-full px-3.5 py-3 bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-xs font-extrabold text-slate-900 dark:text-white"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 dark:text-slate-300 mb-1.5">Vers l'unité</label>
+                        <select id="conv-to" onchange="runConversion()" class="w-full px-3.5 py-3 bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-xs font-extrabold text-slate-900 dark:text-white"></select>
+                    </div>
+                </div>
+                <div class="mt-5 p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border-2 border-indigo-200 dark:border-indigo-800 flex flex-col sm:flex-row items-center justify-between gap-2">
+                    <span class="text-xs font-extrabold text-indigo-900 dark:text-indigo-200">Résultat de la conversion :</span>
+                    <div id="conv-result-display" class="text-xl sm:text-2xl font-black text-indigo-700 dark:text-indigo-300">1 L = 10⁻³ m³</div>
+                </div>
+            </div>
+
+            <!-- Visual Conversion Tables Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- 1. Tableau des Volumes -->
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border-2 border-slate-200 dark:border-slate-800">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-black text-slate-900 dark:text-white text-base sm:text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-cube text-emerald-500"></i> 1. Tableau des Volumes (m³, L, mL, cm³)
+                        </h3>
+                        <span class="text-xs font-extrabold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 px-3 py-1 rounded-full">Unité SI : m³</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-extrabold border-b-2 border-slate-300 dark:border-slate-700">
+                                    <th class="p-3.5 rounded-tl-xl">Unité de Volume</th>
+                                    <th class="p-3.5">En Litres (L)</th>
+                                    <th class="p-3.5 rounded-tr-xl">En m³ (Système International)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 dark:divide-slate-800 font-bold">
+                                <tr>
+                                    <td class="p-3.5 text-slate-900 dark:text-white">1 m³</td>
+                                    <td class="p-3.5 text-emerald-600 dark:text-emerald-400">1000 L = 10³ L</td>
+                                    <td class="p-3.5 text-indigo-600 dark:text-indigo-400">1 m³</td>
+                                </tr>
+                                <tr class="bg-emerald-50/50 dark:bg-emerald-950/20">
+                                    <td class="p-3.5 text-slate-900 dark:text-white">1 L = 1 dm³</td>
+                                    <td class="p-3.5 text-emerald-600 dark:text-emerald-400">1 L</td>
+                                    <td class="p-3.5 text-indigo-600 dark:text-indigo-400 text-base">10⁻³ m³ = 0,001 m³</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3.5 text-slate-900 dark:text-white">1 mL = 1 cm³</td>
+                                    <td class="p-3.5 text-emerald-600 dark:text-emerald-400">10⁻³ L</td>
+                                    <td class="p-3.5 text-indigo-600 dark:text-indigo-400 text-base">10⁻⁶ m³</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 2. Conductimétrie & Concentrations -->
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border-2 border-slate-200 dark:border-slate-800">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-black text-slate-900 dark:text-white text-base sm:text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-bolt-lightning text-indigo-500"></i> 2. Conductimétrie & Concentrations
+                        </h3>
+                        <span class="text-xs font-extrabold bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-300 px-3 py-1 rounded-full">Très Important</span>
+                    </div>
+                    <div class="space-y-3 text-sm">
+                        <div class="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                            <span class="font-bold text-slate-700 dark:text-slate-300">De mol/L vers mol/m³ (pour σ) :</span>
+                            <span class="font-black text-base text-indigo-600 dark:text-indigo-400">1 mol/L = 10³ mol/m³</span>
+                        </div>
+                        <div class="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                            <span class="font-bold text-slate-700 dark:text-slate-300">Conductivité électrique (σ) :</span>
+                            <span class="font-black text-base text-indigo-600 dark:text-indigo-400">1 mS/cm = 0,1 S/m</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+
+    <!-- =================================================================== -->
+    <!-- MODAL : AJOUTER UN NOUVEAU COURS PERSONNALISÉ DANS UNE UNITÉ        -->
+    <!-- =================================================================== -->
+    <div id="new-lesson-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 shadow-2xl border-2 border-slate-200 dark:border-slate-700">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-800">
+                <h3 class="font-black text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-folder-plus text-indigo-500"></i> Ajouter un nouveau titre de cours
+                </h3>
+                <button onclick="closeNewLessonModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="handleCreateCustomLesson(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">Matière</label>
+                    <select id="new-lesson-part" onchange="populateUnitSelectForNewLesson()" class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
+                        <option value="physique">PARTIE I : PHYSIQUE</option>
+                        <option value="chimie">PARTIE II : CHIMIE</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">Unité</label>
+                    <select id="new-lesson-unit" class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">Titre du cours</label>
+                    <input type="text" id="new-lesson-title" required placeholder="Ex: Oscillations forcées..." class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeNewLessonModal()" class="px-4 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-xs font-bold">Annuler</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold">Créer le cours</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- =================================================================== -->
+    <!-- SLIDE-OVER DRAWER : PROFESSEUR IA GEMINI 2BAC BIOF                  -->
+    <!-- =================================================================== -->
+    <div id="ai-drawer-backdrop" onclick="toggleAIDrawer()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40 hidden"></div>
+    <aside id="ai-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[460px] bg-white dark:bg-slate-900 z-50 shadow-2xl border-l-2 border-slate-200 dark:border-slate-800 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-4 bg-gradient-to-r from-violet-700 to-indigo-700 text-white flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div>
+                    <h3 class="font-black text-sm">Professeur IA Gemini • 2BAC BIOF</h3>
+                    <p id="ai-context-label" class="text-[11px] text-indigo-100 truncate max-w-[250px]">Programme Physique & Chimie Maroc</p>
+                </div>
+            </div>
+            <button onclick="toggleAIDrawer()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="p-3 bg-slate-100 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 flex gap-2 overflow-x-auto">
+            <button onclick="sendQuickAIPrompt('Fais-moi un résumé complet et clair de ce cours avec les points essentiels pour le National.')" class="shrink-0 px-3 py-1.5 bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 border border-indigo-300 dark:border-indigo-700 rounded-xl text-[11px] font-extrabold">
+                📝 Résumé de cours
+            </button>
+            <button onclick="sendQuickAIPrompt('Explique-moi toutes les relations de cette unité et comment les démontrer.')" class="shrink-0 px-3 py-1.5 bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 rounded-xl text-[11px] font-extrabold">
+                📐 Expliquer les relations
+            </button>
+            <button onclick="sendQuickAIPrompt('Donne-moi un exercice type Examen National corrigé étape par étape sur ce cours.')" class="shrink-0 px-3 py-1.5 bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-700 rounded-xl text-[11px] font-extrabold">
+                🎯 Exercice National
+            </button>
+        </div>
+
+        <div id="ai-chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50 dark:bg-slate-950 text-xs">
+            <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 leading-relaxed">
+                <span class="font-extrabold text-indigo-600 dark:text-indigo-400 block mb-1">👋 Bonjour ! (أهلاً بكِ)</span>
+                Je suis ton professeur IA propulsé par <strong>Gemini</strong> pour la <strong>Physique-Chimie 2BAC BIOF</strong>.<br>
+                Pose-moi n'importe quelle question en Français ou en Darija !
+            </div>
+        </div>
+
+        <form onsubmit="handleAIChatSubmit(event)" class="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2">
+            <input type="text" id="ai-user-input" placeholder="Pose ta question en Français ou en Darija..." class="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+            <button type="submit" id="ai-send-btn" class="px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-extrabold shadow-sm transition">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </form>
+    </aside>
+
+
+    <!-- =================================================================== -->
+    <!-- MODAL : SAUVEGARDE / IMPORT JSON                                    -->
+    <!-- =================================================================== -->
+    <div id="backup-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 shadow-2xl border-2 border-slate-200 dark:border-slate-700">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-800">
+                <h3 class="font-black text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-emerald-500"></i> Protection & Sauvegarde 100% Sécurisée
+                </h3>
+                <button onclick="closeBackupModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 mb-4 space-y-1.5">
+                <div class="text-xs font-black text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-check"></i> Enregistrement Automatique en Temps Réel Actif
+                </div>
+                <p class="text-xs text-emerald-900/80 dark:text-emerald-200/80 leading-relaxed">
+                    Chaque mot que tu écris est sauvegardé instantanément dans ton navigateur.
+                </p>
+                <div id="modal-last-saved-time" class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 pt-1">
+                    Dernière sauvegarde automatique : Maintenant
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="exportUserData()" class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 shadow-md">
+                    <i class="fa-solid fa-download"></i> Exporter & Télécharger tous mes cours (.json)
+                </button>
+                <label class="w-full py-3.5 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 cursor-pointer border-2 border-slate-300 dark:border-slate-700">
+                    <i class="fa-solid fa-upload text-emerald-500"></i> Restaurer / Importer un fichier de sauvegarde (.json)
+                    <input type="file" accept=".json" onchange="importUserData(event)" class="hidden">
+                </label>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =================================================================== -->
+    <!-- JAVASCRIPT : APP LOGIC & APEX GEMINI AI INTEGRATION                 -->
+    <!-- =================================================================== -->
+    <script>
+        const DEFAULT_LESSONS = {
+            physique: [
+                { id: 'phys-1', part: 'physique', unitId: 'u-ondes', module: 'Unité 1 : Les Ondes', number: 'Cours 1', title: 'Ondes mécaniques progressives', summary: 'Célérité v, retard temporel τ.' },
+                { id: 'phys-2', part: 'physique', unitId: 'u-ondes', module: 'Unité 1 : Les Ondes', number: 'Cours 2', title: 'Ondes mécaniques progressives périodiques', summary: 'Période T, fréquence N, longueur d’onde λ.' },
+                { id: 'phys-3', part: 'physique', unitId: 'u-ondes', module: 'Unité 1 : Les Ondes', number: 'Cours 3', title: 'Propagation d’une onde lumineuse', summary: 'Diffraction, indice de réfraction n.' },
+                { id: 'phys-4', part: 'physique', unitId: 'u-nucleaire', module: 'Unité 2 : Transformations Nucléaires', number: 'Cours 4', title: 'Décroissance radioactive', summary: 'Soddy, radioactivité, loi N(t), demi-vie t₁/₂.' },
+                { id: 'phys-5', part: 'physique', unitId: 'u-nucleaire', module: 'Unité 2 : Transformations Nucléaires', number: 'Cours 5', title: 'Noyaux, masse et énergie', summary: 'Défaut de masse Δm, énergie de liaison El.' },
+                { id: 'phys-6', part: 'physique', unitId: 'u-elec', module: 'Unité 3 : Électricité', number: 'Cours 6', title: 'Dipôle RC', summary: 'Condensateur, équation différentielle, constante τ.' },
+                { id: 'phys-7', part: 'physique', unitId: 'u-elec', module: 'Unité 3 : Électricité', number: 'Cours 7', title: 'Dipôle RL', summary: 'Bobine, établissement du courant, τ = L/RT.' },
+                { id: 'phys-8', part: 'physique', unitId: 'u-elec', module: 'Unité 3 : Électricité', number: 'Cours 8', title: 'Oscillations libres dans un circuit RLC série', summary: 'Régimes, période propre T₀.' },
+                { id: 'phys-9', part: 'physique', unitId: 'u-elec', module: 'Unité 3 : Électricité', number: 'Cours 9', title: 'RLC forcé & Modulation d’amplitude', summary: 'Impédance Z, résonance, taux de modulation m.' },
+                { id: 'phys-10', part: 'physique', unitId: 'u-meca', module: 'Unité 4 : Mécanique', number: 'Cours 10', title: 'Les lois de Newton', summary: '2ème loi, MRUV, repère de Frenet.' },
+                { id: 'phys-11', part: 'physique', unitId: 'u-meca', module: 'Unité 4 : Mécanique', number: 'Cours 11', title: 'Chute verticale d’un solide', summary: 'Frottement fluide, vitesse limite.' },
+                { id: 'phys-12', part: 'physique', unitId: 'u-meca', module: 'Unité 4 : Mécanique', number: 'Cours 12', title: 'Mouvements plans (Projectile, Champ E et B)', summary: 'Projectile dans le champ de pesanteur.' },
+                { id: 'phys-13', part: 'physique', unitId: 'u-meca', module: 'Unité 4 : Mécanique', number: 'Cours 13', title: 'Satellites artificiels et planètes', summary: 'Lois de Kepler, vitesse orbitale.' },
+                { id: 'phys-14', part: 'physique', unitId: 'u-meca', module: 'Unité 4 : Mécanique', number: 'Cours 14', title: 'Rotation d’un solide autour d’un axe fixe', summary: 'RFD en rotation, moment d’inertie.' },
+                { id: 'phys-15', part: 'physique', unitId: 'u-meca', module: 'Unité 4 : Mécanique', number: 'Cours 15', title: 'Systèmes mécaniques oscillants & Énergies', summary: 'Pendule élastique, torsion, pesant.' }
+            ],
+            chimie: [
+                { id: 'chim-0', part: 'chimie', unitId: 'u-chimie-bases', module: 'Unité 0 (Chimie) : Bases & Quantités de matière', number: 'Rappels', title: 'Quantité de matière, Densité, Solution commerciale, Dilution & Gaz Parfaits', summary: 'Toutes les formules de base.' },
+                { id: 'chim-1', part: 'chimie', unitId: 'u-cinetique', module: 'Unité 1 (Chimie) : Transformations rapides et lentes', number: 'Cours 1', title: 'Suivi temporel d’une transformation - Vitesse de réaction', summary: 'Conductimétrie, pression, vitesse volumique.' },
+                { id: 'chim-2', part: 'chimie', unitId: 'u-acidebase', module: 'Unité 2 (Chimie) : Transformations non totales & Acide-Base', number: 'Cours 2', title: 'État d’équilibre d’un système chimique', summary: 'Taux τ, quotient de réaction Qr, constante K.' },
+                { id: 'chim-3', part: 'chimie', unitId: 'u-acidebase', module: 'Unité 2 (Chimie) : Transformations non totales & Acide-Base', number: 'Cours 3', title: 'Réactions acido-basiques & Dosage pH-métrique', summary: 'pH, Ka, pKa, dosage.' },
+                { id: 'chim-4', part: 'chimie', unitId: 'u-piles', module: 'Unité 3 (Chimie) : Sens d’évolution, Piles & Électrolyse', number: 'Cours 4', title: 'Évolution spontanée d’un système chimique', summary: 'Comparaison Qr,i et K.' },
+                { id: 'chim-5', part: 'chimie', unitId: 'u-piles', module: 'Unité 3 (Chimie) : Sens d’évolution, Piles & Électrolyse', number: 'Cours 5', title: 'Transformations spontanées dans les piles', summary: 'Polarité, quantité d’électricité Q.' },
+                { id: 'chim-6', part: 'chimie', unitId: 'u-piles', module: 'Unité 3 (Chimie) : Sens d’évolution, Piles & Électrolyse', number: 'Cours 6', title: 'Transformations forcées : L’électrolyse', summary: 'Anode, cathode, bilan.' },
+                { id: 'chim-7', part: 'chimie', unitId: 'u-orga', module: 'Unité 4 (Chimie) : Chimie Organique', number: 'Cours 7', title: 'Réactions d’estérification, d’hydrolyse et contrôle', summary: 'Rendement r.' }
+            ]
+        };
+
+        const UNIT_RELATIONS = [
+            {
+                unitId: 'u-ondes', part: 'PHYSIQUE', unitTitle: 'Unité 1 : Les Ondes', description: 'Ondes mécaniques et lumineuses.',
+                formulas: [
+                    { title: 'Célérité & Retard', mathHTML: `<span><i>v</i> = <span class="frac"><span class="num"><i>d</i></span><span class="den">Δ<i>t</i></span></span></span> <span class="math-sep">et</span> <span>τ = <span class="frac"><span class="num"><i>SM</i></span><span class="den"><i>v</i></span></span></span>`, details: 'v : m/s | τ : s' },
+                    { title: 'Longueur d’onde λ', mathHTML: `<span>λ = <i>v</i> · <i>T</i> = <span class="frac"><span class="num"><i>v</i></span><span class="den"><i>N</i></span></span></span>`, details: 'λ : m | T : s' }
+                ]
+            },
+            {
+                unitId: 'u-nucleaire', part: 'PHYSIQUE', unitTitle: 'Unité 2 : Nucléaire', description: 'Radioactivité et énergie.',
+                formulas: [
+                    { title: 'Décroissance radioactive', mathHTML: `<span><i>N</i>(<i>t</i>) = <i>N</i><sub>0</sub> · <i>e</i><sup>−λ·<i>t</i></sup></span> <span class="math-sep">et</span> <span><i>a</i>(<i>t</i>) = λ · <i>N</i>(<i>t</i>)</span>`, details: 'N(t) noyaux | a(t) en Bq' },
+                    { title: 'Défaut de masse & Énergie', mathHTML: `<span>Δ<i>m</i> = [<i>Z</i>·<i>m<sub>p</sub></i> + (<i>A</i>−<i>Z</i>)·<i>m<sub>n</sub></i>] − <i>m</i></span> <span class="math-sep">et</span> <span><i>E<sub>l</sub></i> = Δ<i>m</i> · <i>c</i><sup>2</sup></span>`, details: '1 u = 931.5 MeV/c²' }
+                ]
+            },
+            {
+                unitId: 'u-elec', part: 'PHYSIQUE', unitTitle: 'Unité 3 : Électricité', description: 'RC, RL, RLC.',
+                formulas: [
+                    { title: 'Condensateur & Bobine', mathHTML: `<span><i>q</i> = <i>C</i> · <i>u<sub>C</sub></i></span> <span class="math-sep">et</span> <span>τ = <i>R</i>·<i>C</i> &nbsp; ; &nbsp; τ = <span class="frac"><span class="num"><i>L</i></span><span class="den"><i>R</i></span></span></span>`, details: 'C en F | L en H' },
+                    { title: 'Période propre T₀', mathHTML: `<span><i>T</i><sub>0</sub> = 2π · <span class="sqrt-wrap"><span class="sqrt-sym">√</span><span class="sqrt-body"><i>L</i> · <i>C</i></span></span></span>`, details: 'Circuit LC idéal' }
+                ]
+            },
+            {
+                unitId: 'u-meca', part: 'PHYSIQUE', unitTitle: 'Unité 4 : Mécanique', description: 'Newton, Kepler, Rotation.',
+                formulas: [
+                    { title: '2ème Loi de Newton', mathHTML: `<span>∑ <span class="vec"><i>F</i></span> = <i>m</i> · <span class="vec"><i>a</i></span></span>`, details: 'Accélération en m/s²' },
+                    { title: '3ème Loi de Kepler', mathHTML: `<span><span class="frac"><span class="num"><i>T</i><sup>2</sup></span><span class="den"><i>r</i><sup>3</sup></span></span> = <span class="frac"><span class="num">4π<sup>2</sup></span><span class="den"><i>G</i> · <i>M</i></span></span></span>`, details: 'r = R_T + h' }
+                ]
+            },
+            {
+                unitId: 'u-chimie-bases', part: 'CHIMIE', unitTitle: 'Chimie 0 : Bases & Quantité de matière', description: 'Fondamentaux de 1BAC.',
+                formulas: [
+                    { title: 'Quantité de matière n', mathHTML: `<span><i>n</i> = <span class="frac"><span class="num"><i>m</i></span><span class="den"><i>M</i></span></span> = <span class="frac"><span class="num"><i>ρ</i> · <i>V</i></span><span class="den"><i>M</i></span></span> = <i>C</i> · <i>V</i></span>`, details: 'n en mol | C en mol/L' },
+                    { title: 'Solution commerciale & Dilution', mathHTML: `<span><i>C</i><sub>0</sub> = <span class="frac"><span class="num"><i>P</i> · <i>d</i> · ρ<sub>eau</sub></span><span class="den"><i>M</i></span></span></span> <span class="math-sep">et</span> <span><i>C<sub>i</sub>V<sub>i</sub></i> = <i>C<sub>f</sub>V<sub>f</sub></i></span>`, details: 'P % massique' }
+                ]
+            },
+            {
+                unitId: 'u-cinetique', part: 'CHIMIE', unitTitle: 'Chimie 1 : Cinétique', description: 'Conductimétrie et vitesse.',
+                formulas: [
+                    { title: 'Loi de Kohlrausch', mathHTML: `<span>σ = ∑ λ<sub><i>i</i></sub> · [X<sub><i>i</i></sub>]</span>`, details: '[X_i] en mol/m³ !' },
+                    { title: 'Vitesse volumique', mathHTML: `<span><i>v</i>(<i>t</i>) = <span class="frac"><span class="num">1</span><span class="den"><i>V<sub>S</sub></i></span></span> · <span class="frac"><span class="num"><i>dx</i></span><span class="den"><i>dt</i></span></span></span>`, details: 'V_S volume de la solution' }
+                ]
+            },
+            {
+                unitId: 'u-acidebase', part: 'CHIMIE', unitTitle: 'Chimie 2 : Acide-Base & pH', description: 'pH, Ka, τ, K.',
+                formulas: [
+                    { title: 'pH et Taux τ', mathHTML: `<span>pH = − log[H<sub>3</sub>O<sup>+</sup>]</span> <span class="math-sep">et</span> <span>τ = <span class="frac"><span class="num">[H<sub>3</sub>O<sup>+</sup>]</span><span class="den"><i>C</i></span></span></span>`, details: 'Ke = 10⁻¹⁴ à 25°C' },
+                    { title: 'Constante KA & pKA', mathHTML: `<span>pK<sub>A</sub> = − log(<i>K<sub>A</sub></i>)</span> <span class="math-sep">et</span> <span>pH = p<i>K<sub>A</sub></i> + log<mrow></mrow><span class="frac"><span class="num">[Base]</span><span class="den">[Acide]</span></span></span>`, details: 'Henderson' }
+                ]
+            },
+            {
+                unitId: 'u-piles', part: 'CHIMIE', unitTitle: 'Chimie 3 : Piles & Électrolyse', description: 'Faraday et Q.',
+                formulas: [
+                    { title: 'Quantité d’électricité', mathHTML: `<span><i>Q</i> = <i>I</i> · Δ<i>t</i> = <i>n</i>(<i>e</i><sup>−</sup>) · <i>F</i></span>`, details: 'F = 96500 C/mol' }
+                ]
+            },
+            {
+                unitId: 'u-orga', part: 'CHIMIE', unitTitle: 'Chimie 4 : Organique', description: 'Estérification.',
+                formulas: [
+                    { title: 'Rendement r', mathHTML: `<span><i>r</i> = <span class="frac"><span class="num"><i>n</i><sub>exp</sub></span><span class="den"><i>n</i><sub>th</sub></span></span></span>`, details: 'n_th = x_max' }
+                ]
+            }
+        ];
+
+        let activeMainView = 'physique';
+        let activeSubject = 'physique';
+        let activeLessonId = 'phys-1';
+        let activeRelationUnitFilter = 'ALL';
+        let isEditingCourse = false;
+
+        let userData = JSON.parse(localStorage.getItem('bac2biof_userdata_v3')) || {
+            theme: 'dark',
+            lastSaved: null,
+            customLessons: [],
+            mastery: {},
+            courseContent: {},
+            series: {}
+        };
+
+        // FIXED: Added missing applyTheme function to prevent ReferenceError
+        function applyTheme() {
+            const root = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+            if (userData.theme === 'dark') {
+                root.classList.add('dark');
+                if (icon) icon.className = 'fa-solid fa-moon text-sm';
+                if (text) text.textContent = 'Mode Nuit';
+            } else {
+                root.classList.remove('dark');
+                if (icon) icon.className = 'fa-solid fa-sun text-sm';
+                if (text) text.textContent = 'Mode Jour';
+            }
+        }
+
+        function toggleTheme() {
+            userData.theme = userData.theme === 'dark' ? 'light' : 'dark';
+            saveUserData();
+            applyTheme();
+            showToast(userData.theme === 'dark' ? 'Mode Nuit activé 🌙' : 'Mode Jour activé ☀️');
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            t.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                t.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
+        }
+
+        function updateAutoSaveUI(statusText) {
+            const textEl = document.getElementById('autosave-text');
+            const modalTimeEl = document.getElementById('modal-last-saved-time');
+            const nowStr = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            if (textEl) textEl.textContent = statusText || `Sauvegardé à ${nowStr}`;
+            if (modalTimeEl) modalTimeEl.textContent = `Dernière sauvegarde automatique : Aujourd'hui à ${nowStr}`;
+        }
+
+        function saveUserData(statusLabel) {
+            userData.lastSaved = new Date().toISOString();
+            localStorage.setItem('bac2biof_userdata_v3', JSON.stringify(userData));
+            updateAutoSaveUI(statusLabel);
+        }
+
+        function autoSaveCourseDraft(lessonId) {
+            const textEl = document.getElementById(`course-text-${lessonId}`);
+            const pdfEl = document.getElementById(`course-pdf-${lessonId}`);
+            const videoEl = document.getElementById(`course-video-${lessonId}`);
+            if (!textEl) return;
+
+            userData.courseContent[lessonId] = {
+                text: textEl.value,
+                pdfLink: pdfEl ? pdfEl.value.trim() : '',
+                videoLink: videoEl ? videoEl.value.trim() : '',
+                updatedAt: new Date().toLocaleDateString('fr-FR') + ' à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+            };
+            saveUserData('Enregistré automatiquement ✓');
+        }
+
+        function getAllLessonsForSubject(subject) {
+            const def = DEFAULT_LESSONS[subject] || [];
+            const cust = (userData.customLessons || []).filter(l => l.part === subject);
+            return [...def, ...cust];
+        }
+
+        function getLessonById(id) {
+            const all = [...DEFAULT_LESSONS.physique, ...DEFAULT_LESSONS.chimie, ...(userData.customLessons || [])];
+            return all.find(l => l.id === id);
+        }
+
+        function switchMainView(viewName) {
+            activeMainView = viewName;
+            ['physique', 'chimie', 'relations', 'conversions'].forEach(v => {
+                const dBtn = document.getElementById(`nav-${v}`);
+                const mBtn = document.getElementById(`mob-nav-${v}`);
+                const isActive = v === viewName;
+
+                let activeStyle = 'bg-indigo-600 text-white shadow-sm';
+                if (v === 'chimie') activeStyle = 'bg-emerald-600 text-white shadow-sm';
+                if (v === 'relations') activeStyle = 'bg-amber-500 text-slate-950 shadow-sm';
+
+                const inactiveStyle = 'text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700';
+                const mobInactiveStyle = 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700';
+
+                if (dBtn) dBtn.className = `px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-2 ${isActive ? activeStyle : inactiveStyle}`;
+                if (mBtn) mBtn.className = `shrink-0 px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${isActive ? activeStyle : mobInactiveStyle}`;
+            });
+
+            document.getElementById('view-courses').classList.add('hidden');
+            document.getElementById('view-relations').classList.add('hidden');
+            document.getElementById('view-conversions').classList.add('hidden');
+
+            if (viewName === 'physique' || viewName === 'chimie') {
+                document.getElementById('view-courses').classList.remove('hidden');
+                activeSubject = viewName;
+                updateSubjectBanner();
+                const subjectLessons = getAllLessonsForSubject(activeSubject);
+                if (!subjectLessons.some(l => l.id === activeLessonId)) {
+                    activeLessonId = subjectLessons[0]?.id || 'phys-1';
+                }
+                isEditingCourse = false;
+                renderSidebarLessons();
+                renderLessonWorkspace(activeLessonId);
+            } else if (viewName === 'relations') {
+                document.getElementById('view-relations').classList.remove('hidden');
+                renderUnitTabs();
+                renderUnitRelations();
+            } else if (viewName === 'conversions') {
+                document.getElementById('view-conversions').classList.remove('hidden');
+                setupConverterUnits();
+            }
+        }
+
+        function updateSubjectBanner() {
+            const banner = document.getElementById('subject-banner');
+            const badge = document.getElementById('subject-badge');
+            const title = document.getElementById('subject-title');
+
+            if (activeSubject === 'physique') {
+                banner.className = 'p-5 rounded-3xl text-white shadow-lg bg-gradient-to-br from-indigo-600 to-indigo-900 border border-indigo-400/30';
+                badge.textContent = 'PARTIE I : PHYSIQUE';
+                title.textContent = 'COURS DE PHYSIQUE';
+            } else {
+                banner.className = 'p-5 rounded-3xl text-white shadow-lg bg-gradient-to-br from-emerald-600 to-teal-900 border border-emerald-400/30';
+                badge.textContent = 'PARTIE II : CHIMIE';
+                title.textContent = 'COURS DE CHIMIE';
+            }
+        }
+
+        function renderSidebarLessons() {
+            const container = document.getElementById('sidebar-modules-container');
+            const query = (document.getElementById('lesson-search-input').value || '').toLowerCase();
+            container.innerHTML = '';
+
+            const lessons = getAllLessonsForSubject(activeSubject).filter(l =>
+                l.title.toLowerCase().includes(query) ||
+                l.module.toLowerCase().includes(query)
+            );
+
+            const grouped = {};
+            lessons.forEach(l => {
+                if (!grouped[l.module]) grouped[l.module] = [];
+                grouped[l.module].push(l);
+            });
+
+            Object.keys(grouped).forEach(modName => {
+                const modBox = document.createElement('div');
+                modBox.className = 'bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs';
+
+                const headerColor = activeSubject === 'physique'
+                    ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-200'
+                    : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200';
+
+                let html = `<div class="px-4 py-3 ${headerColor} font-black text-xs border-b border-slate-200 dark:border-slate-800">${modName}</div><div class="divide-y divide-slate-100 dark:divide-slate-800">`;
+
+                grouped[modName].forEach(l => {
+                    const isSelected = l.id === activeLessonId;
+                    const hasSavedCourse = userData.courseContent[l.id] && (userData.courseContent[l.id].text || userData.courseContent[l.id].pdfLink);
+                    const status = userData.mastery[l.id] || 'Non commencé';
+
+                    let badgeIcon = hasSavedCourse
+                        ? '<span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-extrabold"><i class="fa-solid fa-check mr-1"></i>Cours ajouté</span>'
+                        : '<span class="text-[10px] opacity-60 font-bold">+ Ajouter</span>';
+
+                    const activeClass = isSelected
+                        ? (activeSubject === 'physique' ? 'bg-indigo-600 text-white' : 'bg-emerald-600 text-white')
+                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-900 dark:text-slate-100';
+
+                    html += `
+                        <button onclick="selectLesson('${l.id}')" class="w-full text-left px-4 py-3.5 transition flex items-center justify-between gap-2 ${activeClass}">
+                            <div class="min-w-0">
+                                <div class="text-[10px] font-extrabold uppercase opacity-75">${l.number} • ${status}</div>
+                                <div class="text-xs sm:text-sm font-extrabold truncate mt-0.5">${l.title}</div>
+                            </div>
+                            <div class="shrink-0">${badgeIcon}</div>
+                        </button>
+                    `;
+                });
+
+                html += `</div>`;
+                modBox.innerHTML = html;
+                container.appendChild(modBox);
+            });
+        }
+
+        function selectLesson(lessonId) {
+            activeLessonId = lessonId;
+            isEditingCourse = false;
+            renderSidebarLessons();
+            renderLessonWorkspace(lessonId);
+            const l = getLessonById(lessonId);
+            if (l) {
+                document.getElementById('ai-context-label').textContent = `Cours actif : ${l.title}`;
+            }
+        }
+
+        function toggleEditCourseMode() {
+            isEditingCourse = !isEditingCourse;
+            renderLessonWorkspace(activeLessonId);
+        }
+
+        function renderLessonWorkspace(lessonId) {
+            const lesson = getLessonById(lessonId);
+            if (!lesson) return;
+
+            const ws = document.getElementById('lesson-workspace');
+            const isPhys = lesson.part === 'physique';
+            const accent = isPhys ? 'indigo' : 'emerald';
+
+            const currentStatus = userData.mastery[lesson.id] || 'Non commencé';
+            const savedCourse = userData.courseContent[lesson.id] || { text: '', pdfLink: '', videoLink: '', updatedAt: null };
+            const hasContent = Boolean(savedCourse.text.trim() || savedCourse.pdfLink.trim() || savedCourse.videoLink.trim());
+            const lessonSeries = userData.series[lesson.id] || [];
+
+            ws.innerHTML = `
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border-2 border-slate-200 dark:border-slate-800">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="text-xs font-extrabold px-3 py-1 rounded-full bg-${accent}-600 text-white">${lesson.module}</span>
+                                <span class="text-xs font-extrabold text-slate-500 dark:text-slate-400">${lesson.number}</span>
+                            </div>
+                            <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-2">${lesson.title}</h2>
+                        </div>
+                        <div class="shrink-0">
+                            <label class="block text-[10px] font-extrabold uppercase text-slate-400 mb-1">Statut de révision</label>
+                            <select onchange="updateLessonMastery('${lesson.id}', this.value)" class="px-3.5 py-2.5 rounded-xl text-xs font-extrabold border-2 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white border-slate-300 dark:border-slate-700">
+                                <option value="Non commencé" ${currentStatus === 'Non commencé' ? 'selected' : ''}>⚪ Non commencé</option>
+                                <option value="En révision" ${currentStatus === 'En révision' ? 'selected' : ''}>🟡 En cours</option>
+                                <option value="Maîtrisé" ${currentStatus === 'Maîtrisé' ? 'selected' : ''}>🟢 Maîtrisé ✓</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="toggleEditCourseMode()" class="px-4 py-2.5 rounded-xl bg-${accent}-600 hover:bg-${accent}-500 text-white text-xs font-extrabold shadow-sm flex items-center gap-2 transition">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                <span>${hasContent ? 'Modifier mon cours' : '+ Ajouter / Écrire le cours ici'}</span>
+                            </button>
+                            <button onclick="openRelationsForUnit('${lesson.unitId}')" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold shadow-sm flex items-center gap-2 transition">
+                                <i class="fa-solid fa-square-root-variable"></i>
+                                <span>Voir les Relations</span>
+                            </button>
+                        </div>
+                        <button onclick="generateAICourseIntoEditor('${lesson.id}')" class="px-3.5 py-2.5 rounded-xl bg-violet-600/15 dark:bg-violet-500/20 hover:bg-violet-600/25 text-violet-700 dark:text-violet-300 border border-violet-400/30 text-xs font-extrabold flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Générer avec Gemini IA
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border-2 border-slate-200 dark:border-slate-800">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-book-open text-${accent}-500"></i> Contenu du Cours
+                        </h3>
+                        ${savedCourse.updatedAt ? `<span class="text-xs font-bold text-slate-400">Mis à jour le ${savedCourse.updatedAt}</span>` : ''}
+                    </div>
+
+                    ${(isEditingCourse || !hasContent) ? `
+                        <form onsubmit="saveCourseContent(event, '${lesson.id}')" class="space-y-4 bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1"><i class="fa-solid fa-file-pdf text-rose-500 mr-1"></i> Lien PDF / Drive</label>
+                                    <input type="url" id="course-pdf-${lesson.id}" oninput="autoSaveCourseDraft('${lesson.id}')" value="${savedCourse.pdfLink || ''}" placeholder="https://drive.google.com/..." class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1"><i class="fa-brands fa-youtube text-rose-600 mr-1"></i> Vidéo YouTube</label>
+                                    <input type="url" id="course-video-${lesson.id}" oninput="autoSaveCourseDraft('${lesson.id}')" value="${savedCourse.videoLink || ''}" placeholder="https://youtube.com/..." class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1.5"><i class="fa-solid fa-pen-nib text-indigo-500 mr-1"></i> Résumé de cours :</label>
+                                <textarea id="course-text-${lesson.id}" oninput="autoSaveCourseDraft('${lesson.id}')" rows="10" placeholder="Écris ton cours..." class="w-full p-4 bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-2xl text-sm font-medium text-slate-900 dark:text-slate-100 leading-relaxed focus:outline-none focus:border-indigo-500">${savedCourse.text || ''}</textarea>
+                            </div>
+                            <div class="flex items-center justify-end gap-3">
+                                ${hasContent ? `<button type="button" onclick="toggleEditCourseMode()" class="px-4 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-xs font-extrabold">Fermer</button>` : ''}
+                                <button type="submit" class="px-6 py-2.5 rounded-xl bg-${accent}-600 hover:bg-${accent}-500 text-white text-xs font-extrabold shadow-md flex items-center gap-2">
+                                    <i class="fa-solid fa-floppy-disk"></i> Valider & Afficher
+                                </button>
+                            </div>
+                        </form>
+                    ` : `
+                        <div class="space-y-4">
+                            ${(savedCourse.pdfLink || savedCourse.videoLink) ? `
+                                <div class="flex flex-wrap gap-3">
+                                    ${savedCourse.pdfLink ? `<a href="${savedCourse.pdfLink}" target="_blank" class="px-4 py-2.5 rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30 text-xs font-extrabold flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Ouvrir PDF</a>` : ''}
+                                    ${savedCourse.videoLink ? `<a href="${savedCourse.videoLink}" target="_blank" class="px-4 py-2.5 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 text-xs font-extrabold flex items-center gap-2"><i class="fa-brands fa-youtube"></i> Vidéo Cours</a>` : ''}
+                                </div>
+                            ` : ''}
+                            <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 text-sm sm:text-base text-slate-800 dark:text-slate-200 whitespace-pre-line leading-relaxed font-medium">
+                                ${savedCourse.text}
+                            </div>
+                        </div>
+                    `}
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border-2 border-slate-200 dark:border-slate-800">
+                    <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-dumbbell text-${accent}-500"></i> Séries d'Exercices & Nationaux (${lessonSeries.length})
+                    </h3>
+                    <form onsubmit="addLessonSeries(event, '${lesson.id}')" class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3 mb-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <input type="text" id="ser-title-${lesson.id}" required placeholder="Titre (ex: Série 1...)" class="px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
+                            <select id="ser-status-${lesson.id}" class="px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-extrabold text-slate-900 dark:text-white">
+                                <option value="À faire">📌 À faire</option>
+                                <option value="En cours">⏳ En cours</option>
+                                <option value="Terminé">✅ Terminé</option>
+                            </select>
+                            <input type="url" id="ser-link-${lesson.id}" placeholder="Lien PDF (optionnel)" class="px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-5 py-2.5 bg-${accent}-600 hover:bg-${accent}-500 text-white rounded-xl text-xs font-extrabold">Ajouter la série</button>
+                        </div>
+                    </form>
+                    <div class="space-y-2.5">
+                        ${lessonSeries.length === 0 ? `<p class="text-center py-4 text-xs font-bold text-slate-400">Aucune série ajoutée.</p>` : lessonSeries.map(s => `
+                            <div class="p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-950/50">
+                                <div>
+                                    <span class="font-extrabold text-sm text-slate-900 dark:text-white">${s.title}</span>
+                                    ${s.link ? `<a href="${s.link}" target="_blank" class="ml-2 text-indigo-400 text-xs underline">PDF</a>` : ''}
+                                </div>
+                                <button onclick="deleteLessonSeries('${lesson.id}', ${s.id})" class="text-rose-500"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function saveCourseContent(e, lessonId) {
+            e.preventDefault();
+            const text = document.getElementById(`course-text-${lessonId}`).value;
+            const pdfLink = document.getElementById(`course-pdf-${lessonId}`).value.trim();
+            const videoLink = document.getElementById(`course-video-${lessonId}`).value.trim();
+
+            userData.courseContent[lessonId] = { text, pdfLink, videoLink, updatedAt: new Date().toLocaleDateString('fr-FR') };
+            isEditingCourse = false;
+            saveUserData();
+            renderSidebarLessons();
+            renderLessonWorkspace(lessonId);
+            showToast('Cours enregistré !');
+        }
+
+        async function generateAICourseIntoEditor(lessonId) {
+            const lesson = getLessonById(lessonId);
+            if (!lesson) return;
+
+            isEditingCourse = true;
+            renderLessonWorkspace(lessonId);
+            const textarea = document.getElementById(`course-text-${lessonId}`);
+            if (textarea) textarea.value = "⏳ Gemini IA rédige le résumé de cours...";
+
+            try {
+                const prompt = `Rédige un résumé clair pour 2BAC BIOF sur : "${lesson.title}" (${lesson.module}). Inclus définitions et lois.`;
+                const reply = await callGeminiAPI(prompt, lesson);
+                userData.courseContent[lessonId] = {
+                    text: reply,
+                    pdfLink: userData.courseContent[lessonId]?.pdfLink || '',
+                    videoLink: userData.courseContent[lessonId]?.videoLink || '',
+                    updatedAt: new Date().toLocaleDateString('fr-FR')
+                };
+                isEditingCourse = false;
+                saveUserData();
+                renderSidebarLessons();
+                renderLessonWorkspace(lessonId);
+                showToast('Généré par Gemini IA !');
+            } catch (err) {
+                if (textarea) textarea.value = "";
+                showToast('Erreur IA.');
+            }
+        }
+
+        function openRelationsForUnit(unitId) {
+            activeRelationUnitFilter = unitId;
+            switchMainView('relations');
+        }
+
+        function renderUnitTabs() {
+            const container = document.getElementById('unit-tabs-container');
+            const tabs = [
+                { id: 'ALL', label: '🌟 Toutes les Unités' },
+                { id: 'u-ondes', label: '🌊 Ondes' },
+                { id: 'u-nucleaire', label: '☢️ Nucléaire' },
+                { id: 'u-elec', label: '⚡ Électricité' },
+                { id: 'u-meca', label: '🚀 Mécanique' },
+                { id: 'u-chimie-bases', label: '🧱 Chimie 0' },
+                { id: 'u-cinetique', label: '⏱️ Cinétique' },
+                { id: 'u-acidebase', label: '🧪 pH & Acide-Base' },
+                { id: 'u-piles', label: '🔋 Piles' },
+                { id: 'u-orga', label: '🧴 Organique' }
+            ];
+
+            container.innerHTML = tabs.map(t => `
+                <button onclick="setRelationUnitFilter('${t.id}')" class="px-4 py-2.5 rounded-2xl text-xs font-extrabold transition ${activeRelationUnitFilter === t.id ? 'bg-indigo-600 text-white shadow-md' : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-2 border-slate-200 dark:border-slate-800'}">
+                    ${t.label}
+                </button>
+            `).join('');
+        }
+
+        function setRelationUnitFilter(unitId) {
+            activeRelationUnitFilter = unitId;
+            renderUnitTabs();
+            renderUnitRelations();
+        }
+
+        function renderUnitRelations() {
+            const container = document.getElementById('unit-relations-container');
+            const q = (document.getElementById('unit-formula-search').value || '').toLowerCase();
+            container.innerHTML = '';
+
+            const unitsToShow = UNIT_RELATIONS.filter(u => activeRelationUnitFilter === 'ALL' || u.unitId === activeRelationUnitFilter);
+
+            unitsToShow.forEach(unit => {
+                const filteredFormulas = unit.formulas.filter(f => unit.unitTitle.toLowerCase().includes(q) || f.title.toLowerCase().includes(q));
+                if (filteredFormulas.length === 0) return;
+
+                const isPhys = unit.part === 'PHYSIQUE';
+                const headerBg = isPhys ? 'from-indigo-600 to-indigo-900 border-indigo-500/40' : 'from-emerald-600 to-teal-900 border-emerald-500/40';
+
+                const sectionEl = document.createElement('div');
+                sectionEl.className = 'bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 overflow-hidden shadow-md';
+                sectionEl.innerHTML = `
+                    <div class="p-6 bg-gradient-to-r ${headerBg} text-white">
+                        <span class="text-[11px] font-black uppercase px-3 py-0.5 rounded-full bg-white/20">${unit.part}</span>
+                        <h3 class="text-xl font-black mt-2">${unit.unitTitle}</h3>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        ${filteredFormulas.map(f => `
+                            <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border-2 border-slate-200 dark:border-slate-800 space-y-3">
+                                <h4 class="text-sm font-black text-slate-900 dark:text-white">${f.title}</h4>
+                                <div class="math-display overflow-x-auto">${f.mathHTML}</div>
+                                <div class="px-4 py-3 rounded-xl bg-slate-200/70 dark:bg-slate-800/90 text-xs text-slate-800 dark:text-slate-200">${f.details}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(sectionEl);
+            });
+        }
+
+        const CONVERTER_UNITS = {
+            volume: { 'm³': 1, 'Litre (L)': 1e-3, 'mL': 1e-6 },
+            concentration: { 'mol/L': 1, 'mol/m³': 1e-3 },
+            conductivite: { 'S/m': 1, 'mS/cm': 0.1 },
+            energie: { 'Joule': 1, 'MeV': 1.602e-13 },
+            pression: { 'Pa': 1, 'bar': 1e5, 'atm': 101325 },
+            masse: { 'kg': 1, 'g': 1e-3, 'u': 1.66e-27 },
+            temps: { 's': 1, 'min': 60, 'h': 3600 }
+        };
+
+        function setupConverterUnits() {
+            const cat = document.getElementById('conv-category').value;
+            const fromSel = document.getElementById('conv-from');
+            const toSel = document.getElementById('conv-to');
+            const units = Object.keys(CONVERTER_UNITS[cat]);
+            fromSel.innerHTML = units.map((u, i) => `<option value="${u}" ${i === 1 ? 'selected' : ''}>${u}</option>`).join('');
+            toSel.innerHTML = units.map((u, i) => `<option value="${u}" ${i === 0 ? 'selected' : ''}>${u}</option>`).join('');
+            runConversion();
+        }
+
+        function runConversion() {
+            const cat = document.getElementById('conv-category').value;
+            const val = parseFloat(document.getElementById('conv-input-val').value);
+            const fromU = document.getElementById('conv-from').value;
+            const toU = document.getElementById('conv-to').value;
+            const display = document.getElementById('conv-result-display');
+            if (isNaN(val)) return;
+            const res = (val * CONVERTER_UNITS[cat][fromU]) / CONVERTER_UNITS[cat][toU];
+            display.textContent = `${val} ${fromU} = ${res.toExponential(3)} ${toU}`;
+        }
+
+        function toggleAIDrawer() {
+            const drawer = document.getElementById('ai-drawer');
+            const backdrop = document.getElementById('ai-drawer-backdrop');
+            drawer.classList.toggle('translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+
+        function sendQuickAIPrompt(text) {
+            document.getElementById('ai-user-input').value = text;
+            handleAIChatSubmit(new Event('submit'));
+        }
+
+        async function callGeminiAPI(userPrompt, currentLesson) {
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            const systemPrompt = `Tu es le professeur IA Gemini expert en Physique-Chimie 2BAC BIOF (Maroc). Réponds clairement en Français ou Darija.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            return result?.candidates?.[0]?.content?.parts?.[0]?.text || "Erreur de réponse IA.";
+        }
+
+        async function handleAIChatSubmit(e) {
+            e.preventDefault();
+            const inputEl = document.getElementById('ai-user-input');
+            const messagesEl = document.getElementById('ai-chat-messages');
+            const query = inputEl.value.trim();
+            if (!query) return;
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'bg-indigo-600 text-white p-3.5 rounded-2xl ml-8 font-bold';
+            userDiv.textContent = query;
+            messagesEl.appendChild(userDiv);
+            inputEl.value = '';
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-500';
+            loadingDiv.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-indigo-500"></i> Gemini réfléchit...`;
+            messagesEl.appendChild(loadingDiv);
+
+            try {
+                const currentLesson = getLessonById(activeLessonId);
+                const reply = await callGeminiAPI(query, currentLesson);
+                loadingDiv.className = 'bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 leading-relaxed';
+                loadingDiv.innerHTML = `<div class="text-[11px] font-black text-indigo-500 mb-1">🤖 Gemini IA</div>` + reply.replace(/\n/g, '<br>');
+            } catch (err) {
+                loadingDiv.textContent = 'Erreur réseau.';
+            }
+        }
+
+        function openNewLessonModal() {
+            document.getElementById('new-lesson-part').value = activeSubject;
+            populateUnitSelectForNewLesson();
+            document.getElementById('new-lesson-modal').classList.remove('hidden');
+            document.getElementById('new-lesson-modal').classList.add('flex');
+        }
+        function closeNewLessonModal() {
+            document.getElementById('new-lesson-modal').classList.add('hidden');
+            document.getElementById('new-lesson-modal').classList.remove('flex');
+        }
+        function populateUnitSelectForNewLesson() {
+            const part = document.getElementById('new-lesson-part').value;
+            const unitSelect = document.getElementById('new-lesson-unit');
+            const units = part === 'physique' ? [
+                { id: 'u-ondes', name: 'Ondes' }, { id: 'u-nucleaire', name: 'Nucléaire' }, { id: 'u-elec', name: 'Électricité' }, { id: 'u-meca', name: 'Mécanique' }
+            ] : [
+                { id: 'u-chimie-bases', name: 'Chimie 0' }, { id: 'u-cinetique', name: 'Cinétique' }, { id: 'u-acidebase', name: 'Acide-Base' }, { id: 'u-piles', name: 'Piles' }, { id: 'u-orga', name: 'Organique' }
+            ];
+            unitSelect.innerHTML = units.map(u => `<option value="${u.id}|${u.name}">${u.name}</option>`).join('');
+        }
+        function handleCreateCustomLesson(e) {
+            e.preventDefault();
+            const part = document.getElementById('new-lesson-part').value;
+            const [unitId, moduleName] = document.getElementById('new-lesson-unit').value.split('|');
+            const title = document.getElementById('new-lesson-title').value.trim();
+            const newId = `custom-${Date.now()}`;
+            if (!userData.customLessons) userData.customLessons = [];
+            userData.customLessons.push({ id: newId, part, unitId, module: moduleName, number: 'Perso', title, summary: '' });
+            saveUserData();
+            closeNewLessonModal();
+            switchMainView(part);
+            selectLesson(newId);
+        }
+
+        function updateLessonMastery(lessonId, status) {
+            userData.mastery[lessonId] = status;
+            saveUserData();
+            renderSidebarLessons();
+            showToast(`Statut : ${status}`);
+        }
+        function addLessonSeries(e, lessonId) {
+            e.preventDefault();
+            const title = document.getElementById(`ser-title-${lessonId}`).value.trim();
+            const status = document.getElementById(`ser-status-${lessonId}`).value;
+            const link = document.getElementById(`ser-link-${lessonId}`).value.trim();
+            if (!userData.series[lessonId]) userData.series[lessonId] = [];
+            userData.series[lessonId].unshift({ id: Date.now(), title, status, link });
+            saveUserData();
+            renderLessonWorkspace(lessonId);
+            showToast('Série ajoutée');
+        }
+        function deleteLessonSeries(lessonId, seriesId) {
+            userData.series[lessonId] = userData.series[lessonId].filter(s => s.id !== seriesId);
+            saveUserData();
+            renderLessonWorkspace(lessonId);
+        }
+
+        function openBackupModal() {
+            document.getElementById('backup-modal').classList.remove('hidden');
+            document.getElementById('backup-modal').classList.add('flex');
+        }
+        function closeBackupModal() {
+            document.getElementById('backup-modal').classList.add('hidden');
+            document.getElementById('backup-modal').classList.remove('flex');
+        }
+        function exportUserData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(userData, null, 2));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", `sauvegarde_2bac_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(dl);
+            dl.click();
+            dl.remove();
+        }
+        function importUserData(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    userData = JSON.parse(evt.target.result);
+                    saveUserData();
+                    applyTheme();
+                    switchMainView(activeMainView);
+                    closeBackupModal();
+                    showToast('Restauré avec succès !');
+                } catch(err) { showToast('Fichier invalide.'); }
+            };
+            reader.readAsText(file);
+        }
+
+        window.onload = function() {
+            applyTheme();
+            switchMainView('physique');
+            setupConverterUnits();
+        };
+    </script>
+</body>
+</html>
